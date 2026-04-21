@@ -10,7 +10,7 @@ import {
 } from '@floating-ui/react'
 import { useState } from 'react'
 import { getApplicationAddress } from 'algosdk'
-import { TransactionReview } from '@d13co/algo-x-evm-ui'
+import { InfoDialog, TransactionReview } from '@d13co/algo-x-evm-ui'
 import type { TransactionData, TransactionDanger, AssetLookupClient } from '@d13co/algo-x-evm-ui'
 
 import { useWalletUI } from '../providers/WalletUIProvider'
@@ -105,31 +105,33 @@ export function BeforeSignDialog({ transactions, message, dangerous, genesisHash
               className="w-full max-w-md rounded-3xl bg-[var(--wui-color-bg)] shadow-xl transform transition-all duration-150 ease-in-out data-[state=starting]:opacity-0 data-[state=starting]:scale-90 data-[state=exiting]:opacity-0 data-[state=exiting]:scale-90 data-[state=entered]:opacity-100 data-[state=entered]:scale-100"
               style={{ marginTop: '-0.5rem' }}
             >
-              <TransactionReview
-                transactions={transactions}
-                message={message}
-                dangerous={dangerous}
-                genesisHash={genesisHash}
-                genesisID={genesisID}
-                algodClient={algodClient}
-                network={network}
-                getApplicationAddress={(appId: number) => getApplicationAddress(BigInt(appId))}
-                onApprove={() => {
-                  if (dangerous) {
-                    onApprove()
-                  } else {
+              <InfoDialog id="sign" className="m-4 flex flex-col gap-4 p-5 rounded-xl border border-[var(--wui-color-border)] bg-[var(--wui-color-bg-secondary)] text-[var(--wui-color-text)]">
+                <TransactionReview
+                  transactions={transactions}
+                  message={message}
+                  dangerous={dangerous}
+                  genesisHash={genesisHash}
+                  genesisID={genesisID}
+                  algodClient={algodClient}
+                  network={network}
+                  getApplicationAddress={(appId: number) => getApplicationAddress(BigInt(appId))}
+                  onApprove={() => {
+                    if (dangerous) {
+                      onApprove()
+                    } else {
+                      setAnimationState('exiting')
+                      setTimeout(() => onApprove(), 150)
+                    }
+                  }}
+                  onReject={() => {
                     setAnimationState('exiting')
-                    setTimeout(() => onApprove(), 150)
-                  }
-                }}
-                onReject={() => {
-                  setAnimationState('exiting')
-                  setTimeout(() => onReject(), 150)
-                }}
-                signing={signing}
-                walletName={walletName}
-                headerAction={closeButton}
-              />
+                    setTimeout(() => onReject(), 150)
+                  }}
+                  signing={signing}
+                  walletName={walletName}
+                  headerAction={closeButton}
+                />
+              </InfoDialog>
             </div>
           </FloatingFocusManager>
         </FloatingOverlay>

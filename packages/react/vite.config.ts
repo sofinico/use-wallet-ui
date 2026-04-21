@@ -31,6 +31,9 @@ export default defineConfig({
         // algo-x-evm-sdk is a peer dep that also transitively pulls in
         // viem; externalising it avoids bundling viem into this package.
         'algo-x-evm-sdk',
+        // Externalise so consumers that also import from this package directly
+        // (e.g. ManagePanel, Disclaimer) share the same React context instances.
+        '@d13co/algo-x-evm-ui',
         // RainbowKit bridge externals (optional peer deps).
         // Use regex so subpath imports like @rainbow-me/rainbowkit/wallets and
         // wagmi/chains are also treated as external and not bundled into this

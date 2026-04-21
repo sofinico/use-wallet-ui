@@ -8,7 +8,7 @@ import {
   useInteractions,
   useRole,
 } from '@floating-ui/react'
-import { BridgePanel } from '@d13co/algo-x-evm-ui'
+import { BridgePanel, Disclaimer } from '@d13co/algo-x-evm-ui'
 import { useNetwork } from '@txnlab/use-wallet-react'
 import { useState, useEffect, useCallback } from 'react'
 
@@ -228,7 +228,9 @@ function ExpandedBridgeDialog() {
               </div>
               <div className="p-4 pt-2">
                 {isMainnet ? (
-                  <BridgePanel {...bridgeProps} hideHeader autoFocusAmount />
+                  <Disclaimer id="bridge">
+                    <BridgePanel {...bridgeProps} hideHeader autoFocusAmount />
+                  </Disclaimer>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
                     <svg

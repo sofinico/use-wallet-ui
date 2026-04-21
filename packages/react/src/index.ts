@@ -29,5 +29,28 @@ export { mapBridgeToPanelProps } from './utils/bridgePropsMapper'
 
 export { getDefaultConfig } from './rainbowkit'
 
+// Notices (disclaimers & info dialogs) — re-exported from @d13co/algo-x-evm-ui
+export {
+  Disclaimer,
+  InfoDialog,
+  NoticeProvider,
+  useNotice,
+  useNoticeConfig,
+  NOTICES_PERSIST_KEY,
+  readNoticeAcks,
+  clearAllNoticeAcks,
+} from '@d13co/algo-x-evm-ui'
+export type {
+  DisclaimerProps,
+  InfoDialogProps,
+  NoticeProviderProps,
+  DisclaimerNotice,
+  InfoNotice,
+  NoticeConfig,
+  NoticesConfig,
+  UseNoticeReturn,
+  NoticeAckMap,
+} from '@d13co/algo-x-evm-ui'
+
 // Initialize custom fonts
 initializeFonts()

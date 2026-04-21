@@ -5,11 +5,13 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, 
 
 import { BeforeSignDialog } from '../components/BeforeSignDialog'
 import { BridgeDialog } from '../components/BridgeDialog'
+import { EvmConnectDisclaimer } from '../components/EvmConnectDisclaimer'
 import { ExtensionSignIndicator } from '../components/ExtensionSignIndicator'
 import { WelcomeDialog } from '../components/WelcomeDialog'
 import { useResolvedTheme, type Theme, type ResolvedTheme } from '../hooks/useResolvedTheme'
 import { BridgeDialogProvider } from './BridgeDialogProvider'
 import { decodeTransactions, TransactionDanger, type DecodedTransaction } from '../utils/decodeTransactions'
+import { NoticeProvider, type NoticesConfig } from '@d13co/algo-x-evm-ui'
 
 import type { NfdLookupResponse, NfdView } from '../hooks/useNfd'
 import { AlgoXEvmSdk } from 'algo-x-evm-sdk'
@@ -233,6 +235,20 @@ interface WalletUIProviderProps {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   wagmiConfig?: any
+  /**
+   * Per-id disclaimer/info dialog content. If omitted for a given id, the
+   * corresponding <Disclaimer>/<InfoDialog> wrapper becomes a no-op and renders
+   * its children directly.
+   *
+   * Well-known ids used internally:
+   * - `bridge` (disclaimer): shown before the bridge panel renders
+   * - `sign` (info): shown before the first transaction sign review
+   * - `evm-connect` (disclaimer): shown after the user first connects an EVM wallet
+   *
+   * Consumers may add more ids for use with their own `<Disclaimer>`/`<InfoDialog>`
+   * wrappers — all acknowledgements share a single localStorage object.
+   */
+  notices?: NoticesConfig
 }
 
 // Default query client configuration for NFD queries
@@ -404,6 +420,7 @@ export function WalletUIProvider({
   theme = 'system',
   rainbowkit,
   wagmiConfig,
+  notices,
 }: WalletUIProviderProps) {
   // Auto-create RainbowKit config from wagmiConfig when rainbowkit prop isn't provided.
   // Uses dynamic import so wagmi/@rainbow-me/rainbowkit remain truly optional peer deps.
@@ -683,6 +700,7 @@ export function WalletUIProvider({
   const wrappedChildren = effectiveRainbowkit ? (
     <effectiveRainbowkit.Provider queryClient={queryClient} resolvedTheme={resolvedTheme} walletManager={manager}>
       {children}
+      <EvmConnectDisclaimer />
     </effectiveRainbowkit.Provider>
   ) : (
     children
@@ -690,23 +708,25 @@ export function WalletUIProvider({
 
   const content = (
     <WalletUIContext.Provider value={contextValue}>
-      <BridgeDialogProvider>
-        <div data-wallet-theme data-theme={dataTheme}>
-          {/* Internal prefetcher component that runs automatically */}
-          <WalletAccountsPrefetcher enabled={enablePrefetching} nfdView={prefetchNfdView} />
-          {wrappedChildren}
-          <BridgeDialog />
-          {showSignDialog && extensionDetected && (
-            <ExtensionSignIndicator transactionCount={pendingSign!.transactions.length} dangerous={pendingSign!.dangerous} onReject={handleRejectSign} />
-          )}
-          {showSignDialog && !extensionDetected && (
-            <BeforeSignDialog transactions={pendingSign!.transactions} message={pendingSign!.message} dangerous={pendingSign!.dangerous} genesisHash={pendingSign!.genesisHash} genesisID={pendingSign!.genesisID} onApprove={handleApproveSign} onReject={handleRejectSign} onClose={() => setShowSignDialog(false)} signing={signing} walletName={activeWallet?.metadata?.name} algodClient={algodClient} network={activeNetwork} />
-          )}
-          {pendingWelcome && (
-            <WelcomeDialog algorandAddress={pendingWelcome.algorandAddress} evmAddress={pendingWelcome.evmAddress} onDismiss={() => setPendingWelcome(null)} />
-          )}
-        </div>
-      </BridgeDialogProvider>
+      <NoticeProvider notices={notices}>
+        <BridgeDialogProvider>
+          <div data-wallet-theme data-theme={dataTheme}>
+            {/* Internal prefetcher component that runs automatically */}
+            <WalletAccountsPrefetcher enabled={enablePrefetching} nfdView={prefetchNfdView} />
+            {wrappedChildren}
+            <BridgeDialog />
+            {showSignDialog && extensionDetected && (
+              <ExtensionSignIndicator transactionCount={pendingSign!.transactions.length} dangerous={pendingSign!.dangerous} onReject={handleRejectSign} />
+            )}
+            {showSignDialog && !extensionDetected && (
+              <BeforeSignDialog transactions={pendingSign!.transactions} message={pendingSign!.message} dangerous={pendingSign!.dangerous} genesisHash={pendingSign!.genesisHash} genesisID={pendingSign!.genesisID} onApprove={handleApproveSign} onReject={handleRejectSign} onClose={() => setShowSignDialog(false)} signing={signing} walletName={activeWallet?.metadata?.name} algodClient={algodClient} network={activeNetwork} />
+            )}
+            {pendingWelcome && (
+              <WelcomeDialog algorandAddress={pendingWelcome.algorandAddress} evmAddress={pendingWelcome.evmAddress} onDismiss={() => setPendingWelcome(null)} />
+            )}
+          </div>
+        </BridgeDialogProvider>
+      </NoticeProvider>
     </WalletUIContext.Provider>
   )
 

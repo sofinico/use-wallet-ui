@@ -3,6 +3,7 @@ import { AddToWalletPanel, type AddToWalletPanelProps } from './AddToWalletPanel
 import { AlgoSymbol } from './AlgoSymbol'
 import { BackButton } from './BackButton'
 import { BridgePanel, type BridgePanelProps } from './BridgePanel'
+import { Disclaimer } from './Disclaimer'
 import { ArrowDownLeft, ArrowUpRight, ArrowsExchange, ArrowsUpDown, Check, ChevronsUpDown, Clipboard, List, RefreshCw, Search, VerifiedBadge, SuspiciousBadge } from './icons'
 import { ReceivePanel, type ReceivePanelProps } from './ReceivePanel'
 import { SendPanel, type SendPanelProps } from './SendPanel'
@@ -412,7 +413,11 @@ export function ManagePanel({
   } else if (mode === 'opt-in' && optIn) {
     panelContent = <ReceivePanel {...optIn} onOptOut={handleOptOut} onBack={() => goBack(optIn.reset)} />
   } else if (mode === 'bridge' && bridge) {
-    panelContent = <BridgePanel {...bridge} onBack={() => goBack(bridge.onReset)} />
+    panelContent = (
+      <Disclaimer id="bridge">
+        <BridgePanel {...bridge} onBack={() => goBack(bridge.onReset)} />
+      </Disclaimer>
+    )
   } else if (mode === 'swap' && swap) {
     panelContent = <SwapPanel {...swap} onBack={() => goBack(swap.reset)} />
   } else if (mode === 'add-to-wallet' && addToWallet) {

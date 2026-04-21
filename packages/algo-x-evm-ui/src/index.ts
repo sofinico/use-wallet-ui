@@ -62,3 +62,15 @@ export type { UseSwapPanelReturn, UseSwapPanelOptions, SwapQuoteDisplay, SwapAss
 
 // Services (re-exported for advanced consumers)
 export type { EIP1193Provider } from './services/evmProviderAdapter'
+
+// Notices (disclaimers & info dialogs)
+export { Disclaimer } from './components/Disclaimer'
+export type { DisclaimerProps } from './components/Disclaimer'
+export { InfoDialog } from './components/InfoDialog'
+export type { InfoDialogProps } from './components/InfoDialog'
+export { NoticeProvider, useNoticeConfig } from './notices/NoticeProvider'
+export type { NoticeProviderProps, DisclaimerNotice, InfoNotice, NoticeConfig, NoticesConfig } from './notices/NoticeProvider'
+export { useNotice } from './notices/useNotice'
+export type { UseNoticeReturn } from './notices/useNotice'
+export { NOTICES_PERSIST_KEY, readAll as readNoticeAcks, clearAll as clearAllNoticeAcks } from './notices/noticeStorage'
+export type { NoticeAckMap } from './notices/noticeStorage'
