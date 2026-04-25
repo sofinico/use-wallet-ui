@@ -253,7 +253,15 @@ export function SwapPanel({
       {status === 'idle' && (
         <>
           <p className="text-sm text-[var(--wui-color-text)] mb-2">
-            Swap tokens at the best rate across Algorand DEXes
+            Swap tokens at the best rate across Algorand DEXes using{' '}
+            <a
+              href="https://txnlab.gitbook.io/haystack-router"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[var(--wui-color-link)] hover:text-[var(--wui-color-link-hover)]"
+            >
+              Haystack router
+            </a>
           </p>
 
           {/* You pay */}
