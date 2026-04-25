@@ -47,7 +47,7 @@ export function WelcomeContent({
       {/* Content */}
       <div id={descriptionId} className="px-6 pb-4 space-y-4">
         <p className="text-sm text-[var(--wui-color-text)]">
-          You can use Algorand with your very own "Algo x EVM" account. This wraps your EVM private key, preserving full
+          You can use Algorand with your very own "xChain Account". This wraps your EVM private key, preserving full
           self-custodial control.{' '}
           <a
             className="text-[var(--wui-color-link)] hover:text-[var(--wui-color-link-hover)]"
@@ -68,7 +68,7 @@ export function WelcomeContent({
             </span>
           </div>
           <div className="flex justify-between items-center text-xs font-bold">
-            <span className="text-[var(--wui-color-text)]">Your Algo x EVM address</span>
+            <span className="text-[var(--wui-color-text)]">Your xChain EVM address</span>
             <span className="flex items-center gap-1.5">
               <span className="text-[var(--wui-color-text)] font-mono">{shortAlgorandAddress}</span>
               <CopyButton text={algorandAddress} variant="icon" title="Copy Algorand address" />

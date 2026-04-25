@@ -256,7 +256,7 @@ export function ManagePanel({
       ) : (
         <>
           <h3 className="wui-header-name text-lg font-bold leading-none text-[var(--wui-color-text)] wallet-custom-font">
-            Manage Algo x EVM Account
+            Manage xChain Account
           </h3>
           {onRefresh && (
             <button

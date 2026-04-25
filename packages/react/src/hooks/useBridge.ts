@@ -27,7 +27,7 @@ export function useBridge(options: UseBridgeOptions = {}): UseBridgePanelReturn 
   // Extract EVM-specific fields from wallet metadata
   // @ts-ignore - metadata exists on AlgoXEvmBaseWallet accounts
   const evmAddress: string | null = (activeWallet?.activeAccount?.metadata?.evmAddress as string) ?? null
-  // @ts-ignore - isAlgoXEvm exists on Algo x EVM wallet metadata
+  // @ts-ignore - isAlgoXEvm exists on xChain EVM wallet metadata
   const isAlgoXEvm = !!activeWallet?.metadata?.isAlgoXEvm
 
   const getEvmProvider = (activeWallet as unknown as Record<string, unknown>)?.getEvmProvider as

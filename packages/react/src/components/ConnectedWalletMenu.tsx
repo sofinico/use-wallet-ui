@@ -91,7 +91,7 @@ function ConnectedWalletMenuContent({ children }: ConnectedWalletMenuProps) {
 
   const optedInAssetIds = React.useMemo(() => new Set(allHoldings.map((a) => Number(a.assetId))), [allHoldings])
 
-  // Get EVM controller address from account metadata for Algo x EVM wallets
+  // Get EVM controller address from account metadata for xChain EVM wallets
   const evmAddress = React.useMemo(() => {
     return (activeWallet?.activeAccount?.metadata?.evmAddress as string) ?? null
   }, [activeWallet])
