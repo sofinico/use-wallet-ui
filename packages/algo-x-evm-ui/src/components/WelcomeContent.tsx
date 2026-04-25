@@ -1,16 +1,6 @@
 import { CopyButton } from './CopyButton'
 import { XFilled } from './icons'
-
-declare global {
-  interface ImportMetaEnv {
-    readonly VITE_DOCS_URL?: string
-  }
-  interface ImportMeta {
-    readonly env: ImportMetaEnv
-  }
-}
-
-const DOCS_URL = (import.meta.env.VITE_DOCS_URL ?? '').replace(/\/+$/, '')
+import { DOCS_URL } from '../constants'
 
 export interface WelcomeContentProps {
   algorandAddress: string
@@ -63,7 +53,7 @@ export function WelcomeContent({
             className="text-[var(--wui-color-link)] hover:text-[var(--wui-color-link-hover)]"
             rel="noopener noreferrer"
             target="_blank"
-            href={`${DOCS_URL}/docs/what-is-algo-x-evm`}
+            href={`${DOCS_URL}/what-is-algo-x-evm`}
           >
             Learn more.
           </a>

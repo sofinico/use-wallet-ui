@@ -5,8 +5,7 @@ import { ChevronRight } from './icons'
 import { Spinner } from './Spinner'
 import { useTransactionData } from '../hooks/useTransactionData'
 import type { TransactionData, TransactionDanger, AssetLookupClient } from '../types'
-
-const DOCS_URL = (import.meta.env.VITE_DOCS_URL ?? '').replace(/\/+$/, '')
+import { DOCS_URL } from '../constants'
 
 /** Well-known Algorand network genesis hashes (base64-encoded). */
 const GENESIS_HASH_NETWORK: Record<string, string> = {
@@ -164,7 +163,7 @@ export function TransactionReview({
               className="text-[var(--wui-color-link)] hover:text-[var(--wui-color-link-hover)]"
               rel="noopener noreferrer"
               target="_blank"
-              href={DOCS_URL ? `${DOCS_URL}/docs/signing-transactions` : 'https://docs.algorand.com/learn/transactions/'}
+              href={`${DOCS_URL}/signing-transactions`}
             >Learn more</a>
         </div>
       )}
