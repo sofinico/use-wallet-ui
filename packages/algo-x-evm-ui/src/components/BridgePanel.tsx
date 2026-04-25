@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNoticeConfig } from '../notices/NoticeProvider'
 import { AlgoSymbol } from './AlgoSymbol'
 import { AssetSelect } from './AssetSelect'
 import { BackButton } from './BackButton'
@@ -275,6 +276,8 @@ export function BridgePanel({
   hideHeader,
   autoFocusAmount,
 }: BridgePanelProps) {
+  const bridgeFooterConfig = useNoticeConfig('bridgeFooter')
+  const bridgeFooter = bridgeFooterConfig?.kind === 'footer' ? bridgeFooterConfig.text : null
   const sourceChain = chains.find((c) => c.chainSymbol === sourceChainSymbol) ?? null
   const sourceTokens = sourceChain?.tokens ?? []
   const selectedSourceToken = sourceTokens.find((t) => t.symbol === sourceTokenSymbol) ?? null
@@ -383,8 +386,16 @@ export function BridgePanel({
         <>
           <p className="text-sm text-[var(--wui-color-text)] mb-3">
             {sourceIsAlgorand
-              ? 'Bridge tokens from Algorand to your EVM accounts using Allbridge'
-              : 'Bridge tokens from your EVM accounts using Allbridge'}
+              ? 'Bridge tokens from Algorand to your EVM accounts using '
+              : 'Bridge tokens from your EVM accounts using '}
+            <a
+              href="https://allbridge.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[var(--wui-color-link)] hover:text-[var(--wui-color-link-hover)]"
+            >
+              Allbridge
+            </a>
           </p>
 
           {/* Source: Chain + Token selectors */}
@@ -519,6 +530,12 @@ export function BridgePanel({
           >
             Bridge
           </button>
+
+          {bridgeFooter ? (
+            <div className="w-full py-2.5 px-4 text-xs text-[var(--wui-color-text-secondary)]">
+              {bridgeFooter}
+            </div>
+          ) : null}
         </>
       )}
 

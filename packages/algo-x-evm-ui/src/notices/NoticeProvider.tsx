@@ -2,7 +2,8 @@ import { createContext, useContext, useMemo, type ReactNode } from 'react'
 
 export type DisclaimerNotice = { kind: 'disclaimer'; text: ReactNode }
 export type InfoNotice = { kind: 'info'; title?: ReactNode; body: ReactNode }
-export type NoticeConfig = DisclaimerNotice | InfoNotice
+export type FooterNotice = { kind: 'footer'; text: ReactNode }
+export type NoticeConfig = DisclaimerNotice | InfoNotice | FooterNotice
 export type NoticesConfig = Record<string, NoticeConfig | undefined>
 
 interface NoticeContextValue {

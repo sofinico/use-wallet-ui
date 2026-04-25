@@ -48,6 +48,7 @@ export type {
   NoticeProviderProps,
   DisclaimerNotice,
   InfoNotice,
+  FooterNotice,
   NoticeConfig,
   NoticesConfig,
   UseNoticeReturn,
