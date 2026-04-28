@@ -52,7 +52,7 @@ export function TransactionStatus({ status, error, successMessage, onRetry, txId
                 href={explorerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[var(--wui-color-primary)] hover:underline"
+                className="text-[var(--wui-color-link)] hover:text-[var(--wui-color-link-hover)]"
               >
                 {truncateTxId(txId)}
               </a>

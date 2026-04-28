@@ -151,7 +151,7 @@ function AllbridgeExplorerLink({ address, children, muted }: { address: string; 
       className={
         muted
           ? 'inline-flex items-center gap-1 rounded text-[var(--wui-color-text-secondary)] hover:text-[var(--wui-color-text-secondary)] transition-colors'
-          : 'text-[var(--wui-color-primary)] hover:underline inline-flex items-center gap-1'
+          : 'text-[var(--wui-color-link)] hover:text-[var(--wui-color-link-hover)] inline-flex items-center gap-1'
       }
     >
       {children} <ExternalLinkIcon />
@@ -632,7 +632,7 @@ export function BridgePanel({
                     href={`https://allo.info/tx/${destinationTxId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono text-[var(--wui-color-primary)] hover:underline"
+                    className="font-mono text-[var(--wui-color-link)] hover:text-[var(--wui-color-link-hover)]"
                   >
                     {formatShortAddr(destinationTxId)}
                   </a>
@@ -742,7 +742,7 @@ function BridgeProgress({
           href="https://allbridge.io/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[var(--wui-color-primary)] hover:underline"
+          className="text-[var(--wui-color-link)] hover:text-[var(--wui-color-link-hover)]"
         >
           Allbridge
         </a>
