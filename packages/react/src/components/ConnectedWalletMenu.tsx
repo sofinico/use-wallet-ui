@@ -215,7 +215,7 @@ function ConnectedWalletMenuContent({ children }: ConnectedWalletMenuProps) {
     return () => window.open(url, '_blank', 'noopener,noreferrer')
   }, [activeAddress, activeNetwork])
 
-  const evmWalletName = (activeWallet?.activeAccount?.metadata?.connectorName as string) || 'MetaMask'
+  const evmWalletName = (activeWallet?.activeAccount?.metadata?.connectorName as string) || 'EVM Wallet'
   const evmWalletIcon = (activeWallet?.activeAccount?.metadata?.connectorIcon as string) || activeWallet?.metadata.icon || ''
 
   const handleAddNetwork = React.useCallback(async () => {
