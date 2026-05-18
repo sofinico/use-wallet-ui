@@ -742,6 +742,7 @@ export function useBridgePanel(wallet: BridgeWalletAdapter, options: UseBridgeOp
 
     // Fees are inclusive: always subtract stablecoin fee + extra gas from the
     // input so the quote reflects what the user actually receives.
+    // Assumes gasFee is always in source token units (stablecoin fee path).
     let quoteAmount = amount
     if (gasFee) {
       const extra = extraGasAmount ? parseFloat(extraGasAmount) : 0
