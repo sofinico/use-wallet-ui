@@ -83,11 +83,11 @@ export function BeforeSignDialog({ transactions, message, dangerous, genesisHash
     <FloatingPortal id="wallet-sign-dialog-portal">
       <div data-wallet-theme data-wallet-ui data-theme={dataTheme}>
         <FloatingOverlay
-          className="grid place-items-center px-4 z-[100] transition-opacity duration-150 ease-in-out bg-[var(--wui-color-overlay)] data-[state=starting]:opacity-0 data-[state=exiting]:opacity-0 data-[state=entered]:opacity-100"
+          className="grid place-items-center px-4 z-[100] pointer-events-auto transition-opacity duration-150 ease-in-out bg-[var(--wui-color-overlay)] data-[state=starting]:opacity-0 data-[state=exiting]:opacity-0 data-[state=entered]:opacity-100"
           data-state={animationState}
           lockScroll
         >
-          <FloatingFocusManager context={context} modal={true}>
+          <FloatingFocusManager context={context} modal={true} outsideElementsInert={true}>
             <div
               ref={refs.setFloating}
               {...getFloatingProps({
@@ -96,7 +96,7 @@ export function BeforeSignDialog({ transactions, message, dangerous, genesisHash
               })}
               role="alertdialog"
               data-state={animationState}
-              className="w-full max-w-md rounded-3xl bg-[var(--wui-color-bg)] shadow-xl transform transition-all duration-150 ease-in-out data-[state=starting]:opacity-0 data-[state=starting]:scale-90 data-[state=exiting]:opacity-0 data-[state=exiting]:scale-90 data-[state=entered]:opacity-100 data-[state=entered]:scale-100"
+              className="w-full max-w-md rounded-3xl bg-[var(--wui-color-bg)] shadow-xl pointer-events-auto transform transition-all duration-150 ease-in-out data-[state=starting]:opacity-0 data-[state=starting]:scale-90 data-[state=exiting]:opacity-0 data-[state=exiting]:scale-90 data-[state=entered]:opacity-100 data-[state=entered]:scale-100"
               style={{ marginTop: '-0.5rem' }}
             >
               <InfoDialog id="sign" className="m-4 flex flex-col gap-4 p-5 rounded-xl border border-[var(--wui-color-border)] bg-[var(--wui-color-bg-secondary)] text-[var(--wui-color-text)]">
