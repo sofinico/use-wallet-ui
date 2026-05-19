@@ -331,6 +331,8 @@ export function BridgePanel({
     amount &&
     parsedAmount > 0 &&
     !insufficientFunds &&
+    !gasFeeLoading &&
+    gasFee != null &&
     (sourceIsAlgorand ? algorandAddress : evmAddress && algorandAddress)
 
   const algoIcon = <AlgoSymbol scale={1} />
