@@ -112,11 +112,14 @@ export interface UseBridgePanelReturn {
   quoteLoading: boolean
 
   // Fee
+  /** Allbridge's relayer fee */
   gasFee: string | null
   gasFeeLoading: boolean
   gasFeeUnit: string | null
   /** Approximate ALGO the user will receive from extra gas conversion (e.g. "~0.123 ALGO") */
   extraGasAlgo: string | null
+  /** Effective fee of the bridge operation: relayer fee + liquidity provider fee. */
+  totalFee: string | null
 
   // Addresses
   evmAddress: string | null
@@ -258,6 +261,7 @@ export function useBridgePanel(wallet: BridgeWalletAdapter, options: UseBridgeOp
   const [extraGasAmount, setExtraGasAmount] = useState<string | null>(null)
   // Approximate ALGO received from extra gas conversion (e.g. "~0.123 ALGO")
   const [extraGasAlgo, setExtraGasAlgo] = useState<string | null>(null)
+  const [totalFee, setTotalFee] = useState<string | null>(null)
 
   // Transfer state
   const [status, setStatus] = useState<BridgeStatus>('idle')
@@ -599,8 +603,10 @@ export function useBridgePanel(wallet: BridgeWalletAdapter, options: UseBridgeOp
         // Fetch bridge gas fees (both native and stablecoin options)
         const fees = await getGasFees(sdk, src, dst, Messenger.ALLBRIDGE)
         if (cancelled) return
-        const nativeFee = fees[FeePaymentMethod.WITH_NATIVE_CURRENCY]?.float ?? null
         const stableFee = fees[FeePaymentMethod.WITH_STABLECOIN]
+        if (stableFee?.float === undefined) {
+          throw new Error("Stablecoin fee missing from SDK response, can't proceed with fee calculation")
+        }
 
         // Check whether the Algorand account has low available balance.
         // If below the threshold, include extra gas (paid in stablecoin)
@@ -608,7 +614,7 @@ export function useBridgePanel(wallet: BridgeWalletAdapter, options: UseBridgeOp
         // Only relevant when destination is Algorand (EVM→ALG direction).
         let extraGasFloat: string | null = null
         let extraGasAlgoValue: string | null = null
-        if (!sourceIsAlgorand && algorandAddress && algodClient) {
+        if (!cancelled && !sourceIsAlgorand && algorandAddress && algodClient) {
           let needsExtraGas = false
           let isZeroBalance = false
           try {
@@ -641,6 +647,9 @@ export function useBridgePanel(wallet: BridgeWalletAdapter, options: UseBridgeOp
                 if (gasAmountMaxFloat > 0) {
                   const algoAmount = (raw / maxFloat) * gasAmountMaxFloat + (isZeroBalance ? 0.2 : 0)
                   extraGasAlgoValue = `~${algoAmount.toFixed(3)} ALGO`
+                  // Implicit rate comes entirely from Allbridge's limit endpoints (trust assumption)
+                  const implicitAlgoPrice = (maxFloat / gasAmountMaxFloat).toFixed(6)
+                  console.log("[useBridgePanel] implicit ALGO/USD price for extra gas:", implicitAlgoPrice)
                 }
               }
             } catch (err) {
@@ -654,14 +663,12 @@ export function useBridgePanel(wallet: BridgeWalletAdapter, options: UseBridgeOp
         extraGasRef.current = extraGasFloat
         // Always store the stablecoin fee so handleBridge can use inclusive
         // stablecoin payment (fee deducted from user's amount, not paid in ETH).
-        stablecoinFeeRef.current = stableFee
-          ? { int: stableFee.int, float: stableFee.float }
-          : null
+        stablecoinFeeRef.current = { int: stableFee.int, float: stableFee.float }
         setExtraGasAmount(extraGasFloat)
         setExtraGasAlgo(extraGasAlgoValue)
         // Always display the stablecoin fee in source token units for
         // consistency with the inclusive fee model.
-        setGasFee(stableFee?.float ?? nativeFee)
+        setGasFee(stableFee.float)
       } catch (err) {
         console.error('[useBridgePanel] Fee calculation error:', err)
         if (!cancelled) {
@@ -720,6 +727,7 @@ export function useBridgePanel(wallet: BridgeWalletAdapter, options: UseBridgeOp
     const dst = resolveDestSdkToken()
     if (!sdk || !src || !dst || !amount || parseFloat(amount) <= 0) {
       setReceivedAmount(null)
+      setTotalFee(null)
       return
     }
 
@@ -728,17 +736,20 @@ export function useBridgePanel(wallet: BridgeWalletAdapter, options: UseBridgeOp
     // and displays an inflated "You receive" value.
     if (gasFeeLoading) {
       setReceivedAmount(null)
+      setTotalFee(null)
       return
     }
 
     // Fees are inclusive: always subtract stablecoin fee + extra gas from the
     // input so the quote reflects what the user actually receives.
+    // Assumes gasFee is always in source token units (stablecoin fee path).
     let quoteAmount = amount
     if (gasFee) {
       const extra = extraGasAmount ? parseFloat(extraGasAmount) : 0
       const net = parseFloat(amount) - parseFloat(gasFee) - extra
       if (net <= 0) {
         setReceivedAmount(null)
+        setTotalFee(null)
         return
       }
       // Cap decimals to source token precision (e.g. 6 for USDC) to avoid
@@ -753,10 +764,28 @@ export function useBridgePanel(wallet: BridgeWalletAdapter, options: UseBridgeOp
       try {
         const { Messenger } = await import('@allbridge/bridge-core-sdk')
         const result = await getQuote(sdk, quoteAmount, src, dst, Messenger.ALLBRIDGE)
-        if (!cancelled) setReceivedAmount(result)
+        if (!cancelled) {
+          setReceivedAmount(result)
+          // LP fee is not returned separately, it's implicit in getQuote return value.
+          // See: https://docs-core.allbridge.io/product/how-does-allbridge-core-work/fees#pool-based-transfers
+          const lpFee = parseFloat(quoteAmount) - parseFloat(result)
+          const effectiveFee = parseFloat(gasFee ?? '0') + lpFee
+          const totalFeeValue = effectiveFee.toFixed(src.decimals)
+          setTotalFee(totalFeeValue)
+          const feeLog = {
+            relayer: gasFee,
+            lp: lpFee.toFixed(src.decimals),
+            lpPercentage: `${((lpFee / (parseFloat(quoteAmount) + parseFloat(gasFee ?? '0'))) * 100).toFixed(2)}%`,
+            total: totalFeeValue,
+          }
+          console.log('[useBridgePanel] fees', feeLog)
+        }
       } catch (err) {
         console.error('[useBridgePanel] Quote calculation error:', err)
-        if (!cancelled) setReceivedAmount(null)
+        if (!cancelled) {
+          setReceivedAmount(null)
+          setTotalFee(null)
+        }
       } finally {
         if (!cancelled) setQuoteLoading(false)
       }
@@ -963,6 +992,7 @@ export function useBridgePanel(wallet: BridgeWalletAdapter, options: UseBridgeOp
     try { localStorage.removeItem(BRIDGE_PERSIST_KEY) } catch {}
     setAmount('')
     setReceivedAmount(null)
+    setTotalFee(null)
     setStatus('idle')
     setError(null)
     setSourceTxId(null)
@@ -980,7 +1010,6 @@ export function useBridgePanel(wallet: BridgeWalletAdapter, options: UseBridgeOp
     userHasSelectedChainRef.current = false
     setExtraGasAmount(null)
     setExtraGasAlgo(null)
-
     setLocalSendConfirmations(0)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1695,6 +1724,7 @@ export function useBridgePanel(wallet: BridgeWalletAdapter, options: UseBridgeOp
     gasFeeLoading,
     gasFeeUnit,
     extraGasAlgo,
+    totalFee,
     evmAddress,
     algorandAddress,
     estimatedTimeMs,
