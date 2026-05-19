@@ -603,8 +603,10 @@ export function useBridgePanel(wallet: BridgeWalletAdapter, options: UseBridgeOp
         // Fetch bridge gas fees (both native and stablecoin options)
         const fees = await getGasFees(sdk, src, dst, Messenger.ALLBRIDGE)
         if (cancelled) return
-        const nativeFee = fees[FeePaymentMethod.WITH_NATIVE_CURRENCY]?.float ?? null
         const stableFee = fees[FeePaymentMethod.WITH_STABLECOIN]
+        if (stableFee?.float === undefined) {
+          throw new Error("Stablecoin fee missing from SDK response, can't proceed with fee calculation")
+        }
 
         // Check whether the Algorand account has low available balance.
         // If below the threshold, include extra gas (paid in stablecoin)
@@ -661,14 +663,12 @@ export function useBridgePanel(wallet: BridgeWalletAdapter, options: UseBridgeOp
         extraGasRef.current = extraGasFloat
         // Always store the stablecoin fee so handleBridge can use inclusive
         // stablecoin payment (fee deducted from user's amount, not paid in ETH).
-        stablecoinFeeRef.current = stableFee
-          ? { int: stableFee.int, float: stableFee.float }
-          : null
+        stablecoinFeeRef.current = { int: stableFee.int, float: stableFee.float }
         setExtraGasAmount(extraGasFloat)
         setExtraGasAlgo(extraGasAlgoValue)
         // Always display the stablecoin fee in source token units for
         // consistency with the inclusive fee model.
-        setGasFee(stableFee?.float ?? nativeFee)
+        setGasFee(stableFee.float)
       } catch (err) {
         console.error('[useBridgePanel] Fee calculation error:', err)
         if (!cancelled) {
